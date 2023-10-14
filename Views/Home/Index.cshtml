@@ -1,0 +1,113 @@
+﻿@model List<APIData>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+@*Refreshes Page*@
+<form action="" method="get">
+    <input type="submit" value="Refresh Data">
+</form>
+
+
+
+@*ReDirects you to shop monkey*@
+<button class="bg-primary" onclick="window.location.href='https://api.shopmonkey.io/v2/orders';">
+    Visit ShopMonkey!
+</button>
+
+ <form action="" method="post">
+        <label for="category">Category:</label>
+        <select id="category" name="category">
+        <option value="option1">Sterling Heights</option>
+        <option value="option2">GrandRapids</option>
+        <option value="option3">Pittsburgh(cochrans)</option>
+        <option value="option4">Farmington Hills</option>
+        <option value="option5">Taylor</option>
+        </select>
+    <input type="hidden" id="shopId" name="shopId" value="">
+
+    <button type="submit">Submit</button>
+</form>
+<div id="data-display">
+<div class="text-center">
+    <table class="tftable" border="1">
+        <tr>
+            <th>Order Number</th>
+            <th>Customer Name</th>
+           <th>Vehicle Make</th>
+            <th>Vehicle Model</th>
+            <th>Vehicle Year</th>
+           
+            <th>Shopmonkey ID</th>
+            
+            <th>Total Amount</th>
+            <th>Update Date</th>
+
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td><a href='@string.Format("https://app.shopmonkey.io/orders/" + @item.ShopmonkeyId + "/summary#tab=1")'>@item.Number</a></td>
+                <td>@item.Customer?.FirstName</td>
+                <td>@item.Vehicle?.Make</td>
+                <td>@item.Vehicle?.Model</td>
+                <td>@item.Vehicle?.Year</td>
+                
+                <td>@item.ShopmonkeyId</td>
+                
+                <td>@item.TotalAmount</td>
+                <td>@item.UpdateDate</td>
+            </tr> 
+            
+        }}
+    </table>
+<div/>
+        <script>
+            
+            document.getElementById('shopName').addEventListener('change', function () {
+                var selectedShopName = this.value;
+                var shopId = mapShopNameToId(selectedShopName);
+
+                // Set the hidden input field's value to the shop ID
+                document.getElementById('shopId').value = shopId;
+            });
+            function mapShopNameToId(shopName) {
+                // In a real application, you would have a mapping of shop names to shop IDs
+                // Here's a simple example:
+                var shopMappings = {
+                    'option1': '1',
+                    'option2': '2',
+                    'option3': '3',
+                    'option4': '4',
+                    'option5': '5'
+                };
+
+                return shopMappings[shopName] || '';
+
+            function refreshData() {
+               
+                $.ajax({
+                    url: 'https://api.shopmonkey.io/v2/orders', 
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        // Update the data-display element with the new data
+                        $('#data-display').html(data);
+                    },
+                    
+                });
+            }
+
+            // Attach the refreshData function to the button click event
+            $('#refresh-button').click(function () {
+                refreshData();
+            });
+
+            // Initial data load when the page loads
+            refreshData();
+        </script>
+</div>
